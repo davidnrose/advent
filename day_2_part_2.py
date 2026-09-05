@@ -20,10 +20,7 @@ def generate_between_pairs(str_pairs):
         start = pair[0]
         end = pair[1]
         while start <= end:
-            if len(str(start)) % 2 == 0:
-                nums.append(start)
-            else: 
-                pass
+            nums.append(start)
             start += 1
         all_nums.append(nums)
 
@@ -38,6 +35,11 @@ def combine_lists_into_single(lst):
     return new_list
 
 
+# drop numbers which are only 1 digit in length - this is catching me out as my checking is allowing these through as "invalid" ids
+def drop_single_digit(lst):
+    return [id for id in lst if len(str(id)) != 1]
+
+
 
 # return the number of ways that there are to divide up the ID with no remainder
 def get_factors_of_length(id): 
@@ -47,9 +49,11 @@ def get_factors_of_length(id):
 
     factors = []
     for i in range(len_id):
-        if i not in [0, 1, len_id]:
+        if i not in [0, 1]:
             if len_id % i == 0:
                 factors.append(i)
+
+    factors.append(len_id)            
 
     return factors
 
@@ -82,48 +86,35 @@ def slice_id(num, fac=5):
 # ccheck if a number follows the pattern
 def check_pattern(num):
 
-    # force to string
-    num_str = str(num)
+    # first get the factors for the id
+    factors = get_factors_of_length(num)
 
-    # get length
-    len_ = len(num_str)
-    half_len = int(len_ / 2)
+    # iterate through the factors, creating the slices, and checking equality
+    for fac in factors: 
+        # slice the id 
+        slices = slice_id(num, fac)
+        # create a set - if len == 1 then the value is repeated
+        if len(set(slices)) == 1: 
+            return num
 
-    # slice the number to get each part
-    part_1 = num_str[:half_len]
-    part_2 = num_str[half_len:]
-
-    # check if each half is the same
-    if part_1 == part_2:
-        return num
-    else: 
-        return 0
+    return 0
+    
 
 
 # apply check to a list and sum the numbers
 def sum_list_with_pattern(lst):
-    res = []
-    for num in lst:
-        res.append(check_pattern(num))
-
-    return sum(res)
+    return sum([check_pattern(id) for id in lst])
         
 
-
+# this is all data prep to create a single list
 lst = split_string(string)
 str_pairs = get_string_pairs(lst)
 all_numbers_list = generate_between_pairs(str_pairs)
 all_numbers = combine_lists_into_single(all_numbers_list)
-#answer = sum_list_with_pattern(all_numbers)
-
-print(all_numbers[0])
-print(slice_id(all_numbers[0]))
+all_numbers = drop_single_digit(all_numbers) 
 
 
-
-
-
-
-
-
+# this is chekcing numbers individually
+answer = sum_list_with_pattern(all_numbers)
+print(answer)
 
